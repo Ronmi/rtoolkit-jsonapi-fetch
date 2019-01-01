@@ -1,0 +1,24 @@
+{
+  "name": "rtoolkit-jsonapi-fetch",
+  "version": "1.0.0",
+  "description": "client for rtoolkit/jsonapi implemented in fetch",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Ronmi/rtoolkit-jsonapi-fetch.git"
+  },
+  "keywords": [
+    "fetch",
+    "jsonapi",
+    "rtoolkit"
+  ],
+  "author": "Ronmi Ren <ronmi.ren@gmail.com>",
+  "license": "WTFPL",
+  "devDependencies": {
+    "typescript": "^3.2.2"
+  }
+}
