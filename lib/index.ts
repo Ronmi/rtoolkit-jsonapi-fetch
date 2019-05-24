@@ -1,6 +1,22 @@
 interface JsonResp {
     data?: any;
-    errors?: any[];
+    errors?: ApiError[];
+}
+
+interface ApiError {
+    code: string;
+    detail: string;
+}
+
+export class JsonapiError extends Error {
+    public code: string;
+    public detail: string;
+
+    public constructor(e: ApiError) {
+        super((!!e.detail)?e.detail:e.code);
+        this.code = e.code;
+        this.detail = e.detail;
+    }
 }
 
 export async function parseResp<T>(resp: Response): Promise<T> {
@@ -11,17 +27,17 @@ export async function parseResp<T>(resp: Response): Promise<T> {
             txt = await resp.text();
             const x = JSON.parse(txt) as JsonResp;
             if (!!x.errors) {
-                e = x.errors[0].detail;
+                e = x.errors[0];
             }
-        } catch (e) {
+        } catch (er) {
             throw new Error(txt);
         }
-        throw new Error(e);
+        throw new JsonapiError(e);
     }
 
     const data = await resp.json() as JsonResp;
     if (!!data.errors) {
-        throw new Error(data.errors[0].detail);
+        throw new JsonapiError(data.errors[0]);
     }
 
     return data.data as T;

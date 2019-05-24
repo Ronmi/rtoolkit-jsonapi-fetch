@@ -1,3 +1,12 @@
+interface ApiError {
+    code: string;
+    detail: string;
+}
+export declare class JsonapiError extends Error {
+    code: string;
+    detail: string;
+    constructor(e: ApiError);
+}
 export declare function parseResp<T>(resp: Response): Promise<T>;
 export declare function postResp(uri: Request | string, data?: any): Promise<Response>;
 export declare function post<T>(uri: Request | string, data?: any): Promise<T>;
@@ -15,3 +24,4 @@ export declare function formResp(uri: Request | string, data: {
 export declare function form<T>(uri: Request | string, data: {
     [k: string]: any;
 }): Promise<T>;
+export {};
