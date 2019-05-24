@@ -5,6 +5,7 @@ interface ApiError {
 export declare class JsonapiError extends Error {
     code: string;
     detail: string;
+    private __proto__;
     constructor(e: ApiError);
 }
 export declare function parseResp<T>(resp: Response): Promise<T>;

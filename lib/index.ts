@@ -3,20 +3,32 @@ interface JsonResp {
     errors?: ApiError[];
 }
 
-interface ApiError {
+export interface ApiError {
     code: string;
     detail: string;
 }
 
-export class JsonapiError extends Error {
-    public code: string;
-    public detail: string;
+function withApiError(e: ApiError): Error {
+    const ret = new Error(e.detail);
+    (ret as any).jsonapi = e;
+    return ret;
+}
 
-    public constructor(e: ApiError) {
-        super((!!e.detail)?e.detail:e.code);
-        this.code = e.code;
-        this.detail = e.detail;
+export function apiError(e: Error): ApiError|null {
+    const x = e as any;
+    if (x.hasOwnProperty('jsonapi')) {
+        return x.jsonapi;
     }
+
+    return null;
+}
+
+export function handleError<T>(e: Error, apiErrHandler: (x: ApiError) => T, generalHandler: (y: Error) => T) {
+    const x = apiError(e);
+    if (x === null) {
+        return generalHandler(e);
+    }
+    return apiErrHandler(x);
 }
 
 export async function parseResp<T>(resp: Response): Promise<T> {
@@ -32,12 +44,12 @@ export async function parseResp<T>(resp: Response): Promise<T> {
         } catch (er) {
             throw new Error(txt);
         }
-        throw new JsonapiError(e);
+        throw withApiError(e);
     }
 
     const data = await resp.json() as JsonResp;
     if (!!data.errors) {
-        throw new JsonapiError(data.errors[0]);
+        throw withApiError(data.errors[0]);
     }
 
     return data.data as T;

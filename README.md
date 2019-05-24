@@ -25,14 +25,18 @@ try {
     const resp = await myApi(params);
     console.log(resp);
 } catch (e) {
-    if (e instanceof api.JsonapiError) {
+    const msg = api.handleError<string>(e, (x) => {
         // api returns error code and message
-        console.log("Error code: " + e.code);
-        console.log("Error detail: " + e.detail);
-    } else {
+        console.log("Error code: " + x.code);
+        console.log("Error detail: " + x.detail);
+        return 'Server returns error code: ' + x.code);
+    }, (e) => {
         // general error like invalid response/connot connect to server/...
         console.log(e);
-    }
+        return 'Unexpected error: ' + e.message;
+    });
+
+    alert(msg);
 } finally {
     cleanup();
 }

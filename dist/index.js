@@ -51,7 +51,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var JsonapiError = /** @class */ (function (_super) {
     __extends(JsonapiError, _super);
     function JsonapiError(e) {
+        var _newTarget = this.constructor;
         var _this = _super.call(this, (!!e.detail) ? e.detail : e.code) || this;
+        var p = _newTarget.prototype;
+        var o = Object;
+        if (o.setPrototypeOf) {
+            o.setPrototypeOf(_this, p);
+        }
+        else {
+            _this.__proto__ = p;
+        }
         _this.code = e.code;
         _this.detail = e.detail;
         return _this;
