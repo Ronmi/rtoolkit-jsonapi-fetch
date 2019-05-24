@@ -1,17 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -48,26 +35,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var JsonapiError = /** @class */ (function (_super) {
-    __extends(JsonapiError, _super);
-    function JsonapiError(e) {
-        var _newTarget = this.constructor;
-        var _this = _super.call(this, (!!e.detail) ? e.detail : e.code) || this;
-        var p = _newTarget.prototype;
-        var o = Object;
-        if (o.setPrototypeOf) {
-            o.setPrototypeOf(_this, p);
-        }
-        else {
-            _this.__proto__ = p;
-        }
-        _this.code = e.code;
-        _this.detail = e.detail;
-        return _this;
+function withApiError(e) {
+    var ret = new Error(e.detail);
+    ret.jsonapi = e;
+    return ret;
+}
+function apiError(e) {
+    var x = e;
+    if (x.hasOwnProperty('jsonapi')) {
+        return x.jsonapi;
     }
-    return JsonapiError;
-}(Error));
-exports.JsonapiError = JsonapiError;
+    return null;
+}
+exports.apiError = apiError;
+function handleError(e, apiErrHandler, generalHandler) {
+    var x = apiError(e);
+    if (x === null) {
+        return generalHandler(e);
+    }
+    return apiErrHandler(x);
+}
+exports.handleError = handleError;
 function parseResp(resp) {
     return __awaiter(this, void 0, void 0, function () {
         var e, txt, x, er_1, data;
@@ -91,12 +79,12 @@ function parseResp(resp) {
                 case 3:
                     er_1 = _a.sent();
                     throw new Error(txt);
-                case 4: throw new JsonapiError(e);
+                case 4: throw withApiError(e);
                 case 5: return [4 /*yield*/, resp.json()];
                 case 6:
                     data = _a.sent();
                     if (!!data.errors) {
-                        throw new JsonapiError(data.errors[0]);
+                        throw withApiError(data.errors[0]);
                     }
                     return [2 /*return*/, data.data];
             }
