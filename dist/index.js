@@ -63,7 +63,7 @@ function parseResp(resp) {
             switch (_a.label) {
                 case 0:
                     if (!!resp.ok) return [3 /*break*/, 5];
-                    e = null;
+                    e = { code: '', detail: '' };
                     txt = '';
                     _a.label = 1;
                 case 1:
@@ -72,6 +72,7 @@ function parseResp(resp) {
                 case 2:
                     txt = _a.sent();
                     x = JSON.parse(txt);
+                    e.detail = 'unknown error: ' + txt;
                     if (!!x.errors) {
                         e = x.errors[0];
                     }

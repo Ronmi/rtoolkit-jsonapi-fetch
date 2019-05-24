@@ -33,11 +33,12 @@ export function handleError<T>(e: Error, apiErrHandler: (x: ApiError) => T, gene
 
 export async function parseResp<T>(resp: Response): Promise<T> {
     if (!resp.ok) {
-        let e = null as any;
+        let e = {code: '', detail: ''};
         let txt = '';
         try {
             txt = await resp.text();
             const x = JSON.parse(txt) as JsonResp;
+            e.detail = 'unknown error: ' + txt;
             if (!!x.errors) {
                 e = x.errors[0];
             }
