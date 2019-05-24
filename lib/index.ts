@@ -8,49 +8,29 @@ export interface ApiError {
     detail: string;
 }
 
-function withApiError(e: ApiError): Error {
-    const ret = new Error(e.detail);
-    (ret as any).jsonapi = e;
-    return ret;
-}
-
-export function apiError(e: Error): ApiError|null {
-    const x = e as any;
-    if (x.hasOwnProperty('jsonapi')) {
-        return x.jsonapi;
+export function handleError<T>(e: any, apiErrHandler: (x: ApiError) => T, generalHandler: (y: any) => T) {
+    if (e.hasOwnProperty('code') && e.hasOwnProperty('detail')) {
+        return apiErrHandler(e as ApiError);
     }
-
-    return null;
-}
-
-export function handleError<T>(e: Error, apiErrHandler: (x: ApiError) => T, generalHandler: (y: Error) => T) {
-    const x = apiError(e);
-    if (x === null) {
-        return generalHandler(e);
-    }
-    return apiErrHandler(x);
+    return generalHandler(e);
 }
 
 export async function parseResp<T>(resp: Response): Promise<T> {
     if (!resp.ok) {
         let e = {code: '', detail: ''};
         let txt = '';
-        try {
-            txt = await resp.text();
-            const x = JSON.parse(txt) as JsonResp;
-            e.detail = 'unknown error: ' + txt;
-            if (!!x.errors) {
-                e = x.errors[0];
-            }
-        } catch (er) {
-            throw new Error(txt);
+        txt = await resp.text();
+        const x = JSON.parse(txt) as JsonResp;
+        e.detail = 'unknown error: ' + txt;
+        if (!!x.errors) {
+            throw x.errors[0];
         }
-        throw withApiError(e);
+        throw new Error(txt);
     }
 
     const data = await resp.json() as JsonResp;
     if (!!data.errors) {
-        throw withApiError(data.errors[0]);
+        throw data.errors[0];
     }
 
     return data.data as T;

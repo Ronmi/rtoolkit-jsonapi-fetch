@@ -2,8 +2,7 @@ export interface ApiError {
     code: string;
     detail: string;
 }
-export declare function apiError(e: Error): ApiError | null;
-export declare function handleError<T>(e: Error, apiErrHandler: (x: ApiError) => T, generalHandler: (y: Error) => T): T;
+export declare function handleError<T>(e: any, apiErrHandler: (x: ApiError) => T, generalHandler: (y: any) => T): T;
 export declare function parseResp<T>(resp: Response): Promise<T>;
 export declare function postResp(uri: Request | string, data?: any): Promise<Response>;
 export declare function post<T>(uri: Request | string, data?: any): Promise<T>;

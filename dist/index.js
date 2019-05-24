@@ -35,57 +35,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function withApiError(e) {
-    var ret = new Error(e.detail);
-    ret.jsonapi = e;
-    return ret;
-}
-function apiError(e) {
-    var x = e;
-    if (x.hasOwnProperty('jsonapi')) {
-        return x.jsonapi;
-    }
-    return null;
-}
-exports.apiError = apiError;
 function handleError(e, apiErrHandler, generalHandler) {
-    var x = apiError(e);
-    if (x === null) {
-        return generalHandler(e);
+    if (e.hasOwnProperty('code') && e.hasOwnProperty('detail')) {
+        return apiErrHandler(e);
     }
-    return apiErrHandler(x);
+    return generalHandler(e);
 }
 exports.handleError = handleError;
 function parseResp(resp) {
     return __awaiter(this, void 0, void 0, function () {
-        var e, txt, x, er_1, data;
+        var e, txt, x, data;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!!resp.ok) return [3 /*break*/, 5];
+                    if (!!resp.ok) return [3 /*break*/, 2];
                     e = { code: '', detail: '' };
                     txt = '';
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, resp.text()];
-                case 2:
+                case 1:
                     txt = _a.sent();
                     x = JSON.parse(txt);
                     e.detail = 'unknown error: ' + txt;
                     if (!!x.errors) {
-                        e = x.errors[0];
+                        throw x.errors[0];
                     }
-                    return [3 /*break*/, 4];
-                case 3:
-                    er_1 = _a.sent();
                     throw new Error(txt);
-                case 4: throw withApiError(e);
-                case 5: return [4 /*yield*/, resp.json()];
-                case 6:
+                case 2: return [4 /*yield*/, resp.json()];
+                case 3:
                     data = _a.sent();
                     if (!!data.errors) {
-                        throw withApiError(data.errors[0]);
+                        throw data.errors[0];
                     }
                     return [2 /*return*/, data.data];
             }
